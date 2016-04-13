@@ -5,8 +5,10 @@ const fs = require('mz/fs');
 fs.copy = require('fs-extra-promise').copyAsync;
 
 const Koa = require('koa');
-const app = new Koa();
 const send = require('koa-send');
+const cors = require('koa-cors');
+const convert = require('koa-convert');
+const app = new Koa();
 
 const MAX_CHARS = 37;
 const FILES = 'files';
@@ -17,12 +19,18 @@ const PATH_CHANGER = './pathchanger';
 
 let counter = 0;
 
+app.use(convert(cors({
+  origin: '*',
+})));
+
 app.use((ctx, next) => {
   const payload = ctx.request.url.slice(1, MAX_CHARS + 1);
   ctx.payload = payload;
 
+
   if (payload.length == 0) {
-    ctx.body = `<input onkeyup="if (event.keyCode == 13) window.location.href = event.srcElement.value" maxlength="${MAX_CHARS}" placeholder="${DEFAULT_PAYLOAD}" type="text" id="path" />`;
+    const url = `http://${ctx.host}/`;
+    ctx.body = `<input onkeyup="if (event.keyCode == 13) window.location.href = '${url}' + event.srcElement.value" maxlength="${MAX_CHARS}" placeholder="${DEFAULT_PAYLOAD}" type="text" id="path" />`;
     return;
   }
 
