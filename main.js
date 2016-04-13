@@ -3,6 +3,7 @@ const path = require('path');
 const child_process = require('child-process-promise');
 const fs = require('mz/fs');
 fs.copy = require('fs-extra-promise').copyAsync;
+fs.mkdirs = require('fs-extra-promise').mkdirsAsync;
 
 const Koa = require('koa');
 const send = require('koa-send');
@@ -63,6 +64,10 @@ app.use((ctx, next) => {
       return cpPromise;
     }).then(() => {
       console.log(`[${ctx.payload}] Renaming ${tmp} to ${ctx.file}`);
+      const dir = path.dirname(ctx.file);
+
+      return fs.mkdirs(dir);
+    }).then(() => {
       return fs.rename(tmp, ctx.file).then(next);
     });
   } else {
