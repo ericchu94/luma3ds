@@ -21,7 +21,7 @@ app.use((ctx, next) => {
   ctx.payload = payload;
 
   if (payload.length == 0) {
-    ctx.body = `<input maxlength="${MAX_CHARS}" placeholder="${DEFAULT_PAYLOAD}" type="text" id="path" /><input type="button" value="Download" onclick="window.location.href = document.getElementById('path').value" />`;
+    ctx.body = `<input onkeyup="if (event.keyCode == 13) window.location.href = event.srcElement.value" maxlength="${MAX_CHARS}" placeholder="${DEFAULT_PAYLOAD}" type="text" id="path" />`;
     return;
   }
 
