@@ -29,7 +29,7 @@ app.use((ctx, next) => {
 
   if (payload.length == 0) {
     const url = `http://${ctx.host}/`;
-    ctx.body = `<input onkeyup="if (event.keyCode == 13) window.location.href = '${url}' + event.target.value" maxlength="${MAX_CHARS}" placeholder="${DEFAULT_PAYLOAD}" type="text" />`;
+    ctx.body = `<p><input onkeyup="if (event.keyCode == 13) window.location.href = '${url}' + event.target.value" maxlength="${MAX_CHARS}" placeholder="${DEFAULT_PAYLOAD}" type="text" /></p><p>Binary from <a href="http://astronautlevel2.github.io/AuReiNand/">http://astronautlevel2.github.io/AuReiNand/</a></p>`;
     return;
   }
 
