@@ -1,8 +1,8 @@
 'use strict';
+const path = require('path');
 const child_process = require('child-process-promise');
 const fs = require('mz/fs');
 fs.copy = require('fs-extra-promise').copyAsync;
-const path = require('path');
 
 const Koa = require('koa');
 const app = new Koa();
@@ -14,6 +14,7 @@ const TMP = 'tmp';
 const DEFAULT_PAYLOAD = 'arm9loaderhax.bin';
 const DEFAULT_PAYLOAD_PATH = path.join(FILES, DEFAULT_PAYLOAD);
 const PATH_CHANGER = './pathchanger';
+
 let counter = 0;
 
 app.use((ctx, next) => {
