@@ -71,11 +71,14 @@ app.use((ctx) => {
   return fs.remove(ctx.tmpDir);
 });
 
-setInterval(function () {
+function update() {
   console.log('Updating binary');
   child_process.execFile('./get.sh').then(() => {
     console.log('Binary updated');
   });
-}, 10 * 60 * 1000);
+}
+
+update();
+setInterval(update, 10 * 60 * 1000);
 
 app.listen(3000);
