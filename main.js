@@ -16,6 +16,24 @@ const MAX_CHARS = 37;
 const DEFAULT_PAYLOAD = 'arm9loaderhax.bin';
 const PATH_CHANGER = './pathchanger';
 
+const winston = require('winston');
+const logger = new (winston.Logger) ({
+  transports: [
+    new (winston.transports.Console) ({
+      timestamp: () => {
+        return new Date();
+      },
+      colorize: true,
+    }),
+    new (winston.transports.File) ({
+      filename: 'arn.log',
+      timestamp: () => {
+        return new Date();
+      },
+    }),
+  ],
+});
+
 let counter = 0;
 
 app.use(convert(cors({
@@ -41,19 +59,19 @@ app.use((ctx, next) => {
   counter++;
   const tmpDir = id.toString();
   ctx.tmpDir = tmpDir;
-  console.log(`[${ctx.payload}] Creating directory ${tmpDir}`);
+  logger.info(`Creating directory ${tmpDir}`, { payload: ctx.payload });
   return fs.mkdirs(tmpDir).then(next);
 });
 
 app.use((ctx, next) => {
   const tmp = path.join(ctx.tmpDir, DEFAULT_PAYLOAD);
   ctx.tmp = tmp;
-  console.log(`[${ctx.payload}] Copying ${DEFAULT_PAYLOAD} to ${tmp}`);
+  logger.info(`Copying ${DEFAULT_PAYLOAD} to ${tmp}`, { payload: ctx.payload });
   return fs.copy(DEFAULT_PAYLOAD, tmp).then(next);
 });
 
 app.use((ctx, next) => {
-  console.log(`[${ctx.payload}] Running ${PATH_CHANGER} on ${ctx.tmp}`);
+  logger.info(`Running ${PATH_CHANGER} on ${ctx.tmp}`, { payload: ctx.payload });
   const cpPromise = child_process.execFile(PATH_CHANGER, [ctx.tmp]);
   const stdin = cpPromise.childProcess.stdin;
   stdin.write(ctx.payload);
@@ -62,19 +80,19 @@ app.use((ctx, next) => {
 });
 
 app.use((ctx, next) => {
-  console.log(`[${ctx.payload}] Sending`);
+  logger.info(`Sending ${ctx.tmp}`, { payload: ctx.payload });
   return send(ctx, ctx.tmp).then(next);
 });
 
 app.use((ctx) => {
-  console.log(`[${ctx.payload}] Deleting ${ctx.tmpDir}`);
+  logger.info(`Deleting ${ctx.tmpDir}`, { payload: ctx.payload });
   return fs.remove(ctx.tmpDir);
 });
 
 function update() {
-  console.log('Updating binary');
+  logger.info('Updating binary');
   child_process.execFile('./get.sh').then(() => {
-    console.log('Binary updated');
+    logger.info('Binary updated');
   });
 }
 
