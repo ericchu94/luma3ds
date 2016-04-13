@@ -81,4 +81,11 @@ app.use(ctx => {
   return send(ctx, ctx.file);
 });
 
+setInterval(function () {
+  console.log('Updating binary');
+  child_process.execFile('./get.sh').then(() => {
+    console.log('Binary updated');
+  });
+}, 10 * 60 * 1000);
+
 app.listen(3000);
