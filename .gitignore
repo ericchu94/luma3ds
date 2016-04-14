@@ -32,3 +32,8 @@ jspm_packages
 
 # Optional REPL history
 .node_repl_history
+
+# ARN
+latest.bin
+release.bin
+pathchanger

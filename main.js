@@ -50,6 +50,11 @@ app.use(views(__dirname + '/views', {
   },
 }));
 
+router.get('*', (ctx, next) => {
+  logger.info(`Serving ${ctx.req.url}`);
+  return next();
+});
+
 router.get('/', (ctx, next) => {
   return ctx.render('index', {
     placeholder: PAYLOAD,
@@ -96,9 +101,9 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 function update() {
-  logger.info('Updating binary');
+  logger.info('Updating binaries');
   child_process.execFile('./get.sh').then(() => {
-    logger.info('Binary updated');
+    logger.info('Binaries updated');
   });
 }
 
