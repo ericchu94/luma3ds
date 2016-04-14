@@ -13,7 +13,9 @@ const convert = require('koa-convert');
 const app = new Koa();
 
 const MAX_CHARS = 37;
-const DEFAULT_PAYLOAD = 'arm9loaderhax.bin';
+const PAYLOAD = 'arm9loaderhax.bin'
+const LATEST = 'latest.bin';
+const RELEASE = 'release.bin';
 const PATH_CHANGER = './pathchanger';
 
 const winston = require('winston');
@@ -48,7 +50,7 @@ app.use((ctx, next) => {
   if (payload.length == 0) {
     logger.info('Serving /');
     const url = `http://${ctx.host}/`;
-    ctx.body = `<p>sdmc:/ <input onkeyup="if (event.keyCode == 13) window.location.href = '${url}' + event.target.value" maxlength="${MAX_CHARS}" placeholder="${DEFAULT_PAYLOAD}" type="text" /> <input type="button" value="Press enter you shit" disabled /></p><p>Download the latest AuReiNand with customized payload path!</p><p><strong>Examples:</strong></p><ul><li>arm9payload.bin</li><li>a9lh/AuReiNand.bin</li><li>arm9select/default.bin</li></ul><p><strong>Notes:</strong></p><ul><li>Do not put a leading slash</li><li>Use forward slashes</li><li>Path can be 37 characters max</li></ul><p>Check out #3dshacks on Rizon for more information.</p><p>Binary from <a href="http://astronautlevel2.github.io/AuReiNand/">http://astronautlevel2.github.io/AuReiNand/</a></p><p>Source code here: <a href="https://github.com/ericchu94/arn">GitHub</a></p>`;
+    ctx.body = `<p>sdmc:/ <input onkeyup="if (event.keyCode == 13) window.location.href = '${url}' + event.target.value" maxlength="${MAX_CHARS}" placeholder="${PAYLOAD}" type="text" /> <input type="button" value="Press enter you shit" disabled /></p><p>Download the latest AuReiNand with customized payload path!</p><p><strong>Examples:</strong></p><ul><li>arm9payload.bin</li><li>a9lh/AuReiNand.bin</li><li>arm9select/default.bin</li></ul><p><strong>Notes:</strong></p><ul><li>Do not put a leading slash</li><li>Use forward slashes</li><li>Path can be 37 characters max</li></ul><p>Check out #3dshacks on Rizon for more information.</p><p>Binary from <a href="http://astronautlevel2.github.io/AuReiNand/">http://astronautlevel2.github.io/AuReiNand/</a></p><p>Source code here: <a href="https://github.com/ericchu94/arn">GitHub</a></p>`;
     return;
   }
 
@@ -65,10 +67,11 @@ app.use((ctx, next) => {
 });
 
 app.use((ctx, next) => {
-  const tmp = path.join(ctx.tmpDir, DEFAULT_PAYLOAD);
+  const tmp = path.join(ctx.tmpDir, PAYLOAD);
+  ctx.version = LATEST;
   ctx.tmp = tmp;
-  logger.info(`Copying ${DEFAULT_PAYLOAD} to ${tmp}`, { payload: ctx.payload });
-  return fs.copy(DEFAULT_PAYLOAD, tmp).then(next);
+  logger.info(`Copying ${ctx.version} to ${tmp}`, { payload: ctx.payload });
+  return fs.copy(ctx.version, tmp).then(next);
 });
 
 app.use((ctx, next) => {
