@@ -69,6 +69,8 @@ router.get(['/latest/*', '/release/*'], (ctx, next) => {
   else
     ctx.version = RELEASE;
   ctx.payload = ctx.params[0];
+  if (ctx.payload == 0)
+    ctx.payload = PAYLOAD;
   return next();
 }, (ctx, next) => {
   const id = counter;

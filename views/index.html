@@ -28,15 +28,17 @@
       <script>
       $(function () {
         $('#path').on('keyup', function (event) {
-          if (event.keyCode == 13) {
+          if (event.keyCode == 13)
             $('#download').click();
-          }
         });
 
         $('#download').on('click', function (event) {
           var version = $('input[name="version"]:checked').val();
+          var path = $('#path').val();
+          if (path.length == 0)
+            path = '<%= placeholder %>';
 
-          window.location.href = '<%= url %>' + version + '/' + $('#path').val();
+          window.location.href = '<%= url %>' + version + '/' + path;
         });
       });
       </script>
