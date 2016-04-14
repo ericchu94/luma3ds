@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>ARN</title>
+  </head>
+  <body>
+    <p>sdmc:/ <input id="path" maxlength="<%= maxLength %>" placeholder="<%= placeholder %>" type="text" /> <input type="button" value="Download" id="download" /><br />
+    <input type="radio" id="latest" value="latest" name="version" checked /> <label for="latest">Latest Commit</label> <input type="radio" id="release" value="release" name="version" disabled /> <label for="release">Latest Release</label></p>
+    <p>Download the latest AuReiNand with customized payload path!</p>
+    <p><strong>Examples:</strong></p>
+    <ul>
+      <li>arm9payload.bin</li>
+      <li>a9lh/AuReiNand.bin</li>
+      <li>arm9select/default.bin</li>
+    </ul>
+    <p><strong>Notes:</strong></p>
+    <ul>
+      <li>Do not put a leading slash</li>
+      <li>Use forward slashes</li>
+      <li>Path can be 37 characters max</li>
+    </ul>
+    <p>Check out #3dshacks on Rizon for more information.</p>
+    <p>Binary from <a href="http://astronautlevel2.github.io/AuReiNand/">http://astronautlevel2.github.io/AuReiNand/</a></p>
+    <p>Source code here: <a href="https://github.com/ericchu94/arn">GitHub</a></p>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <script>
+    $(function () {
+      $('#path').on('keyup', function (event) {
+        if (event.keyCode == 13) {
+          $('#download').click();
+        }
+      });
+
+      $('#download').on('click', function (event) {
+        var version = $('input[name="version"]:checked').val();
+
+        window.location.href = '<%= url %>' + version + '/' + $('#path').val();
+      });
+    });
+    </script>
+  </body>
+</html>
