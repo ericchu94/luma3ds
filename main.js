@@ -6,6 +6,12 @@ fs.copy = require('fs-extra-promise').copyAsync;
 fs.mkdirs = require('fs-extra-promise').mkdirsAsync;
 fs.remove = require('fs-extra-promise').removeAsync;
 
+const cheerio = require('cheerio');
+const rp = require('request-promise');
+const request = require('request');
+const Minizip = require('node-minizip');
+const Zip = require('node-7z');
+
 const Koa = require('koa');
 const send = require('koa-send');
 const cors = require('koa-cors');
@@ -13,6 +19,11 @@ const convert = require('koa-convert');
 const views = require('koa-views');
 const router = require('koa-router')();
 const app = new Koa();
+
+const LATEST_HOST = 'http://astronautlevel2.github.io'
+const LATEST_PAGE = `${LATEST_HOST}/AuReiNand/`
+const RELEASE_HOST = 'https://github.com'
+const RELEASE_PAGE = `${RELEASE_HOST}/AuroraWright/AuReiNand/releases`
 
 const MAX_CHARS = 37;
 const PAYLOAD = 'arm9loaderhax.bin'
@@ -103,9 +114,82 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 function update() {
-  logger.info('Updating binaries');
-  child_process.execFile('./get.sh').then(() => {
-    logger.info('Binaries updated');
+  rp(LATEST_PAGE).then(data => {
+    const $ = cheerio.load(data);
+    return `${LATEST_HOST}${$('tr td a').attr('href')}`;
+  }).then(path => {
+    return new Promise((resolve, reject) => {
+      const dest = 'latest.zip'
+      const r = request(path);
+      r.on('error', reject);
+      const writeStream = fs.createWriteStream(dest);
+      writeStream.on('finish', () => {
+        resolve(dest);
+      });
+      r.pipe(writeStream);
+    });
+  }).then(file => {
+    const dest = '.';
+    return new Promise((resolve, reject) => {
+      Minizip.unzip(file, dest, err => {
+        if (err)
+          reject(err);
+        else
+          resolve();
+      });
+    }).then(() => {
+      return fs.unlink(file);
+    }).then(() => {
+      return dest;
+    });
+  }).then(output => {
+    const folder = path.join(output, 'out');
+    const file = path.join(folder, 'arm9loaderhax.bin');
+    return fs.rename(file, LATEST).then(() => {
+      return folder;
+    });
+  }).then((folder) => {
+    return fs.remove(folder);
+  }).then(() => {
+    logger.info(`Updated ${LATEST}`);
+  }, err => {
+    logger.warn(`Failed to update ${LATEST}: ${err}`);
+  });
+
+  rp(RELEASE_PAGE).then(data => {
+    const $ = cheerio.load(data);
+    return `${RELEASE_HOST}${$('.release-downloads a').attr('href')}`;
+  }).then(path => {
+    return new Promise((resolve, reject) => {
+      const dest = 'release.7z'
+      const r = request(path);
+      r.on('error', reject);
+      const writeStream = fs.createWriteStream(dest);
+      writeStream.on('finish', () => {
+        resolve(dest);
+      });
+      r.pipe(writeStream);
+    });
+  }).then(file => {
+    const dest = 'out';
+    const zip = new Zip();
+    return zip.extract(file, dest).then(() => {
+      return fs.unlink(file);
+    }).then(() => {
+      return '.';
+    });
+  }).then(output => {
+    const folder = path.join(output, 'out');
+    const file = path.join(folder, 'arm9loaderhax.bin');
+    return fs.rename(file, LATEST).then(() => {
+      return folder;
+    });
+  }).then((folder) => {
+    return fs.remove(folder);
+  }).then(() => {
+    logger.info(`Updated ${RELEASE}`);
+  }, err => {
+    logger.warn(`Failed to update ${RELEASE}: ${err}`);
   });
 }
 
