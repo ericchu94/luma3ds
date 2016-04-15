@@ -178,7 +178,7 @@ function update() {
       }).then(output => {
         const folder = path.join(output, 'out');
         const file = path.join(folder, 'arm9loaderhax.bin');
-        return fs.rename(file, LATEST).then(() => {
+        return fs.rename(file, RELEASE).then(() => {
           return folder;
         });
       }).then((folder) => {
