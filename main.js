@@ -212,4 +212,4 @@ function update() {
 update();
 setInterval(update, 10 * 60 * 1000);
 
-app.listen(3000);
+app.listen(process.env.PORT || 3000);
