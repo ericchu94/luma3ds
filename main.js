@@ -71,6 +71,8 @@ router.get('/', (ctx, next) => {
     placeholder: PAYLOAD,
     maxLength: MAX_CHARS,
     url: `http://${ctx.host}/`,
+    latest: path.basename(last_latest_src),
+    release: path.basename(last_release_src),
   });
 });
 
