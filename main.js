@@ -9,7 +9,7 @@ fs.remove = require('fs-extra-promise').removeAsync;
 const cheerio = require('cheerio');
 const rp = require('request-promise');
 const request = require('request');
-const Minizip = require('node-minizip');
+const unzip = require('unzip2');
 const Zip = require('node-7z');
 
 const Koa = require('koa');
@@ -126,28 +126,14 @@ function update() {
     else {
       last_latest_src = src;
       return new Promise((resolve, reject) => {
-        const dest = 'latest.zip'
+        const dest = '.'
         const r = request(src);
         r.on('error', reject);
-        const writeStream = fs.createWriteStream(dest);
-        writeStream.on('finish', () => {
+        const writeStream = unzip.Extract({ path: dest });
+        writeStream.on('close', () => {
           resolve(dest);
         });
         r.pipe(writeStream);
-      }).then(file => {
-        const dest = '.';
-        return new Promise((resolve, reject) => {
-          Minizip.unzip(file, dest, err => {
-            if (err)
-              reject(err);
-            else
-              resolve();
-          });
-        }).then(() => {
-          return fs.unlink(file);
-        }).then(() => {
-          return dest;
-        });
       }).then(output => {
         const folder = path.join(output, 'out');
         const file = path.join(folder, 'arm9loaderhax.bin');

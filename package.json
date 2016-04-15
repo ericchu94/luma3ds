@@ -21,9 +21,9 @@
     "koa-views": "^5.0.1",
     "mz": "^2.4.0",
     "node-7z": "^0.4.0",
-    "node-minizip": "^0.3.0",
     "request": "^2.71.0",
     "request-promise": "^2.0.1",
+    "unzip2": "^0.2.5",
     "winston": "^2.2.0"
   }
 }
