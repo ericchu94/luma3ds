@@ -113,83 +113,96 @@ router.get(['/latest/*', '/release/*'], (ctx, next) => {
 app.use(router.routes());
 app.use(router.allowedMethods());
 
+let last_latest_src = null;
+let last_release_src = null;
+
 function update() {
   rp(LATEST_PAGE).then(data => {
     const $ = cheerio.load(data);
     return `${LATEST_HOST}${$('tr td a').attr('href')}`;
-  }).then(path => {
-    return new Promise((resolve, reject) => {
-      const dest = 'latest.zip'
-      const r = request(path);
-      r.on('error', reject);
-      const writeStream = fs.createWriteStream(dest);
-      writeStream.on('finish', () => {
-        resolve(dest);
+  }).then(src => {
+    if (last_latest_src == src)
+      logger.info(`${LATEST} is up to date`);
+    else {
+      last_latest_src = src;
+      return new Promise((resolve, reject) => {
+        const dest = 'latest.zip'
+        const r = request(src);
+        r.on('error', reject);
+        const writeStream = fs.createWriteStream(dest);
+        writeStream.on('finish', () => {
+          resolve(dest);
+        });
+        r.pipe(writeStream);
+      }).then(file => {
+        const dest = '.';
+        return new Promise((resolve, reject) => {
+          Minizip.unzip(file, dest, err => {
+            if (err)
+              reject(err);
+            else
+              resolve();
+          });
+        }).then(() => {
+          return fs.unlink(file);
+        }).then(() => {
+          return dest;
+        });
+      }).then(output => {
+        const folder = path.join(output, 'out');
+        const file = path.join(folder, 'arm9loaderhax.bin');
+        return fs.rename(file, LATEST).then(() => {
+          return folder;
+        });
+      }).then((folder) => {
+        return fs.remove(folder);
+      }).then(() => {
+        logger.info(`Updated ${LATEST}`);
+      }, err => {
+        logger.warn(`Failed to update ${LATEST}: ${err}`);
       });
-      r.pipe(writeStream);
-    });
-  }).then(file => {
-    const dest = '.';
-    return new Promise((resolve, reject) => {
-      Minizip.unzip(file, dest, err => {
-        if (err)
-          reject(err);
-        else
-          resolve();
-      });
-    }).then(() => {
-      return fs.unlink(file);
-    }).then(() => {
-      return dest;
-    });
-  }).then(output => {
-    const folder = path.join(output, 'out');
-    const file = path.join(folder, 'arm9loaderhax.bin');
-    return fs.rename(file, LATEST).then(() => {
-      return folder;
-    });
-  }).then((folder) => {
-    return fs.remove(folder);
-  }).then(() => {
-    logger.info(`Updated ${LATEST}`);
-  }, err => {
-    logger.warn(`Failed to update ${LATEST}: ${err}`);
+    }
   });
 
   rp(RELEASE_PAGE).then(data => {
     const $ = cheerio.load(data);
     return `${RELEASE_HOST}${$('.release-downloads a').attr('href')}`;
-  }).then(path => {
-    return new Promise((resolve, reject) => {
-      const dest = 'release.7z'
-      const r = request(path);
-      r.on('error', reject);
-      const writeStream = fs.createWriteStream(dest);
-      writeStream.on('finish', () => {
-        resolve(dest);
+  }).then(src => {
+    if (last_release_src == src)
+      logger.info(`${RELEASE} is up to date`);
+    else {
+      last_release_src = src;
+      return new Promise((resolve, reject) => {
+        const dest = 'release.7z'
+        const r = request(src);
+        r.on('error', reject);
+        const writeStream = fs.createWriteStream(dest);
+        writeStream.on('finish', () => {
+          resolve(dest);
+        });
+        r.pipe(writeStream);
+      }).then(file => {
+        const dest = 'out';
+        const zip = new Zip();
+        return zip.extract(file, dest).then(() => {
+          return fs.unlink(file);
+        }).then(() => {
+          return '.';
+        });
+      }).then(output => {
+        const folder = path.join(output, 'out');
+        const file = path.join(folder, 'arm9loaderhax.bin');
+        return fs.rename(file, LATEST).then(() => {
+          return folder;
+        });
+      }).then((folder) => {
+        return fs.remove(folder);
+      }).then(() => {
+        logger.info(`Updated ${RELEASE}`);
+      }, err => {
+        logger.warn(`Failed to update ${RELEASE}: ${err}`);
       });
-      r.pipe(writeStream);
-    });
-  }).then(file => {
-    const dest = 'out';
-    const zip = new Zip();
-    return zip.extract(file, dest).then(() => {
-      return fs.unlink(file);
-    }).then(() => {
-      return '.';
-    });
-  }).then(output => {
-    const folder = path.join(output, 'out');
-    const file = path.join(folder, 'arm9loaderhax.bin');
-    return fs.rename(file, LATEST).then(() => {
-      return folder;
-    });
-  }).then((folder) => {
-    return fs.remove(folder);
-  }).then(() => {
-    logger.info(`Updated ${RELEASE}`);
-  }, err => {
-    logger.warn(`Failed to update ${RELEASE}: ${err}`);
+    }
   });
 }
 
