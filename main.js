@@ -30,6 +30,7 @@ const PAYLOAD = 'arm9loaderhax.bin'
 const LATEST = 'latest.bin';
 const RELEASE = 'release.bin';
 const PATH_CHANGER = './pathchanger';
+const PATTERN = 'sdmc:/'
 
 const winston = require('winston');
 const logger = new (winston.Logger) ({
@@ -81,7 +82,7 @@ router.get(['/latest/*', '/release/*'], (ctx, next) => {
     ctx.version = LATEST;
   else
     ctx.version = RELEASE;
-  ctx.payload = ctx.params[0];
+  ctx.payload = ctx.params[0].slice(0, 37);
   if (ctx.payload == 0)
     ctx.payload = PAYLOAD;
   return next();
@@ -98,12 +99,26 @@ router.get(['/latest/*', '/release/*'], (ctx, next) => {
   logger.info(`Copying ${ctx.version} to ${tmp}`, { payload: ctx.payload });
   return fs.copy(ctx.version, tmp).then(next);
 }, (ctx, next) => {
-  logger.info(`Running ${PATH_CHANGER} on ${ctx.tmp}`, { payload: ctx.payload });
-  const cpPromise = child_process.execFile(PATH_CHANGER, [ctx.tmp]);
-  const stdin = cpPromise.childProcess.stdin;
-  stdin.write(ctx.payload);
-  stdin.end();
-  return cpPromise.then(next);
+  logger.info(`Changing payload path on ${ctx.tmp}`, { payload: ctx.payload });
+  return fs.open(ctx.tmp, 'r+').then(fd => {
+    return fs.readFile(fd).then(data => {
+      const buf = Buffer.alloc(PATTERN.length * 2);
+      for (let i = 0; i < PATTERN.length; ++i) {
+        buf[2 * i] = PATTERN[i].charCodeAt();
+        buf[2 * i + 1] = 0;
+      }
+      return data.indexOf(buf) + buf.length;
+    }).then(offset => {
+      const buf = Buffer.alloc(MAX_CHARS * 2);
+      for (let i = 0; i < ctx.payload.length; ++i) {
+        buf[2 * i] = ctx.payload[i].charCodeAt();
+        buf[2 * i + 1] = 0;
+      }
+      return fs.write(fd, buf, 0, buf.length, offset);
+    }).then(() => {
+      return fs.close(fd);
+    });
+  }).then(next);
 }, (ctx, next) => {
   logger.info(`Sending ${ctx.tmp}`, { payload: ctx.payload });
   return send(ctx, ctx.tmp).then(next);
