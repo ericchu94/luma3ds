@@ -83,7 +83,7 @@ router.get(['/latest/*', '/release/*'], (ctx, next) => {
     ctx.version = LATEST;
   else
     ctx.version = RELEASE;
-  ctx.payload = ctx.params[0].slice(0, 37);
+  ctx.payload = ctx.params[0];
   if (ctx.payload == 0)
     ctx.payload = PAYLOAD;
   return next();
@@ -103,18 +103,14 @@ router.get(['/latest/*', '/release/*'], (ctx, next) => {
   logger.info(`Changing payload path on ${ctx.tmp}`, { payload: ctx.payload });
   return fs.open(ctx.tmp, 'r+').then(fd => {
     return fs.readFile(fd).then(data => {
-      const buf = Buffer.alloc(PATTERN.length * 2);
-      for (let i = 0; i < PATTERN.length; ++i) {
-        buf[2 * i] = PATTERN[i].charCodeAt();
-        buf[2 * i + 1] = 0;
-      }
-      return data.indexOf(buf) + buf.length;
+      const buf = Buffer.from(PATTERN, 'utf16le');
+      const index = data.indexOf(buf);
+      if (index == -1)
+        throw new Error(`Failed to find ${PATTERN} in ${ctx.tmp}`);
+      return index + buf.length;
     }).then(offset => {
       const buf = Buffer.alloc(MAX_CHARS * 2);
-      for (let i = 0; i < ctx.payload.length; ++i) {
-        buf[2 * i] = ctx.payload[i].charCodeAt();
-        buf[2 * i + 1] = 0;
-      }
+      buf.write(ctx.payload, 'utf16le');
       return fs.write(fd, buf, 0, buf.length, offset);
     }).then(() => {
       return fs.close(fd);
