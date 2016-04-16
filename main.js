@@ -153,7 +153,7 @@ function update() {
         const folder = path.join(output, 'out');
         const file = path.join(folder, 'arm9loaderhax.bin');
         return fs.rename(file, LATEST).then(() => {
-          return folder;
+          return output;
         });
       }).then((folder) => {
         return fs.remove(folder);
@@ -196,7 +196,7 @@ function update() {
         const folder = path.join(output, 'out');
         const file = path.join(folder, 'arm9loaderhax.bin');
         return fs.rename(file, RELEASE).then(() => {
-          return folder;
+          return output;
         });
       }).then((folder) => {
         return fs.remove(folder);
