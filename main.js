@@ -19,6 +19,9 @@ const views = require('koa-views');
 const router = require('koa-router')();
 const app = new Koa();
 
+const PORT = process.env.PORT || 3000;
+const UPDATE_INTERVAL = process.env.UPDATE_INTERVAL || 10;
+
 const LATEST_HOST = 'http://astronautlevel2.github.io'
 const LATEST_PAGE = `${LATEST_HOST}/AuReiNand/`
 const RELEASE_PAGE = 'https://github.com/AuroraWright/AuReiNand/releases';
@@ -210,6 +213,6 @@ function update() {
 }
 
 update();
-setInterval(update, 10 * 60 * 1000);
+setInterval(update, UPDATE_INTERVAL * 60 * 1000);
 
-app.listen(process.env.PORT || 3000);
+app.listen(PORT);
