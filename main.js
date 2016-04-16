@@ -141,7 +141,7 @@ function update() {
     else {
       last_latest_src = src;
       return new Promise((resolve, reject) => {
-        const dest = '.'
+        const dest = 'tmp_latest'
         const r = request(src);
         r.on('error', reject);
         const writeStream = unzip.Extract({ path: dest });
@@ -167,7 +167,6 @@ function update() {
 
   rp(RELEASE_PAGE).then(data => {
     const $ = cheerio.load(data);
-    console.log($('.label-latest .release-title').text().trim());
     return {
       src: $('.label-latest .release-title').text().trim(),
       commit: $('.label-latest li').eq(1).text().trim(),
@@ -184,7 +183,7 @@ function update() {
         }).attr('href')}`;
       }).then(src => {
         return new Promise((resolve, reject) => {
-          const dest = '.'
+          const dest = 'tmp_release'
           const r = request(src);
           r.on('error', reject);
           const writeStream = unzip.Extract({ path: dest });
