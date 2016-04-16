@@ -1,7 +1,5 @@
 # arn
-Need binary `pathchanger`
+`npm install` and `npm start`
 
-Update binaries `latest.bin` and `release.bin` using `get.sh`
-
-## Windows
-Not yet supported. I am likely going to port `get.sh` to `node`, but unlikely to port `pathchanger` to `node`.
+## Cross platform
+I believe all dependencies of this app is cross platform. Please report an issue otherwise.
