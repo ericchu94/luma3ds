@@ -10,7 +10,6 @@ const cheerio = require('cheerio');
 const rp = require('request-promise');
 const request = require('request');
 const unzip = require('unzip2');
-const Zip = require('node-7z');
 
 const Koa = require('koa');
 const send = require('koa-send');
@@ -22,8 +21,7 @@ const app = new Koa();
 
 const LATEST_HOST = 'http://astronautlevel2.github.io'
 const LATEST_PAGE = `${LATEST_HOST}/AuReiNand/`
-const RELEASE_HOST = 'https://github.com'
-const RELEASE_PAGE = `${RELEASE_HOST}/AuroraWright/AuReiNand/releases`
+const RELEASE_PAGE = 'https://github.com/AuroraWright/AuReiNand/releases';
 
 const MAX_CHARS = 37;
 const PAYLOAD = 'arm9loaderhax.bin'
@@ -169,28 +167,31 @@ function update() {
 
   rp(RELEASE_PAGE).then(data => {
     const $ = cheerio.load(data);
-    return `${RELEASE_HOST}${$('.release-downloads a').attr('href')}`;
-  }).then(src => {
-    if (last_release_src == src)
+    console.log($('.label-latest .release-title').text().trim());
+    return {
+      src: $('.label-latest .release-title').text().trim(),
+      commit: $('.label-latest li').eq(1).text().trim(),
+    };
+  }).then(info => {
+    if (last_release_src == info.src)
       logger.info(`${RELEASE} is up to date`);
     else {
-      last_release_src = src;
-      return new Promise((resolve, reject) => {
-        const dest = 'release.7z'
-        const r = request(src);
-        r.on('error', reject);
-        const writeStream = fs.createWriteStream(dest);
-        writeStream.on('finish', () => {
-          resolve(dest);
-        });
-        r.pipe(writeStream);
-      }).then(file => {
-        const dest = 'out';
-        const zip = new Zip();
-        return zip.extract(file, dest).then(() => {
-          return fs.unlink(file);
-        }).then(() => {
-          return '.';
+      last_release_src = info.src;
+      return rp(LATEST_PAGE).then(data => {
+        const $ = cheerio.load(data);
+        return `${LATEST_HOST}${$('tr td a').filter((i, el) => {
+          return $(el).text().includes(info.commit);
+        }).attr('href')}`;
+      }).then(src => {
+        return new Promise((resolve, reject) => {
+          const dest = '.'
+          const r = request(src);
+          r.on('error', reject);
+          const writeStream = unzip.Extract({ path: dest });
+          writeStream.on('close', () => {
+            resolve(dest);
+          });
+          r.pipe(writeStream);
         });
       }).then(output => {
         const folder = path.join(output, 'out');
