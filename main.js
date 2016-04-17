@@ -25,6 +25,7 @@ const UPDATE_INTERVAL = process.env.UPDATE_INTERVAL || 10;
 const LATEST_HOST = 'http://astronautlevel2.github.io'
 const LATEST_PAGE = `${LATEST_HOST}/AuReiNand/`
 const RELEASE_PAGE = 'https://github.com/AuroraWright/AuReiNand/releases';
+const GITHUB_PAGE = 'https://github.com/AuroraWright/AuReiNand';
 
 const MAX_CHARS = 37;
 const PAYLOAD = 'arm9loaderhax.bin'
@@ -131,23 +132,33 @@ let last_latest_src = null;
 let last_release_src = null;
 
 function update() {
-  rp(LATEST_PAGE).then(data => {
+  rp(GITHUB_PAGE).then(data => {
     const $ = cheerio.load(data);
-    return `${LATEST_HOST}${$('tr td a').attr('href')}`;
-  }).then(src => {
-    if (last_latest_src == src)
+    return {
+      src: $('.commit-tease-sha').text().trim(),
+      commit: $('.commit-tease-sha').text().trim(),
+    };
+  }).then(info => {
+    if (last_latest_src == info.src)
       logger.info(`${LATEST} is up to date`);
     else {
-      last_latest_src = src;
-      return new Promise((resolve, reject) => {
-        const dest = 'tmp_latest'
-        const r = request(src);
-        r.on('error', reject);
-        const writeStream = unzip.Extract({ path: dest });
-        writeStream.on('close', () => {
-          resolve(dest);
+      last_latest_src = info.src;
+      return rp(LATEST_PAGE).then(data => {
+        const $ = cheerio.load(data);
+        return `${LATEST_HOST}${$('tr td a').filter((i, el) => {
+          return $(el).text().includes(info.commit);
+        }).attr('href')}`;
+      }).then(src => {
+        return new Promise((resolve, reject) => {
+          const dest = 'tmp_latest'
+          const r = request(src);
+          r.on('error', reject);
+          const writeStream = unzip.Extract({ path: dest });
+          writeStream.on('close', () => {
+            resolve(dest);
+          });
+          r.pipe(writeStream);
         });
-        r.pipe(writeStream);
       }).then(output => {
         const folder = path.join(output, 'out');
         const file = path.join(folder, 'arm9loaderhax.bin');
@@ -166,9 +177,11 @@ function update() {
 
   rp(RELEASE_PAGE).then(data => {
     const $ = cheerio.load(data);
+    const src = $('.label-latest .release-title').text().trim();
+    const commit = $('.label-latest li').eq(1).text().trim();
     return {
-      src: $('.label-latest .release-title').text().trim(),
-      commit: $('.label-latest li').eq(1).text().trim(),
+      src: `${src} - ${commit}`,
+      commit: commit,
     };
   }).then(info => {
     if (last_release_src == info.src)
