@@ -26,23 +26,7 @@
       <p>Binary from <a href="http://astronautlevel2.github.io/AuReiNand/">http://astronautlevel2.github.io/AuReiNand/</a></p>
       <p>Source code here: <a href="https://github.com/ericchu94/arn">GitHub</a></p>
       <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
-      <script>
-      $(function () {
-        $('#path').on('keyup', function (event) {
-          if (event.keyCode == 13)
-            $('#download').click();
-        });
-
-        $('#download').on('click', function (event) {
-          var version = $('input[name="version"]:checked').val();
-          var path = $('#path').val();
-          if (path.length == 0)
-            path = '<%= placeholder %>';
-
-          window.location.href = '<%= url %>' + version + '/' + path;
-        });
-      });
-      </script>
+      <script src="/assets/index.js"></script>
       </div>
   </body>
 </html>

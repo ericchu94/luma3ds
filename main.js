@@ -17,6 +17,7 @@ const cors = require('koa-cors');
 const convert = require('koa-convert');
 const views = require('koa-views');
 const router = require('koa-router')();
+const serve = require('koa-static');
 const app = new Koa();
 
 const PORT = process.env.PORT || 3000;
@@ -79,6 +80,8 @@ router.get('/', (ctx, next) => {
     release: path.basename(last_release_src),
   });
 });
+
+router.get('/assets/*', serve('.'));
 
 router.get(['/latest/*', '/release/*'], (ctx, next) => {
   if (ctx.req.url.startsWith('/latest/'))
