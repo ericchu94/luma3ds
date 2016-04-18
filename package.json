@@ -1,7 +1,7 @@
 {
   "name": "arn",
   "version": "1.0.0",
-  "description": "",
+  "description": "AuReiNand A9LH Payload Generator",
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
@@ -26,5 +26,6 @@
     "request-promise": "^2.0.1",
     "unzip2": "^0.2.5",
     "winston": "^2.2.0"
-  }
+  },
+  "repository": "https://github.com/ericchu94/arn"
 }
