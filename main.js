@@ -23,11 +23,14 @@ const app = new Koa();
 const PORT = process.env.PORT || 3000;
 const UPDATE_INTERVAL = process.env.UPDATE_INTERVAL || 10;
 
+const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || null;
+const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || null;
+
 const LATEST_HOST = 'http://astronautlevel2.github.io'
 const LATEST_PAGE = `${LATEST_HOST}/AuReiNand/`
-const RELEASE_PAGE = 'https://api.github.com/repos/AuroraWright/AuReiNand/releases/latest';
-const COMMITS_PAGE = 'https://api.github.com/repos/AuroraWright/AuReiNand/commits';
-const TAGS_PAGE = 'https://api.github.com/repos/AuroraWright/AuReiNand/tags';
+const RELEASE_PAGE = `https://api.github.com/repos/AuroraWright/AuReiNand/releases/latest?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
+const COMMITS_PAGE = `https://api.github.com/repos/AuroraWright/AuReiNand/commits?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
+const TAGS_PAGE = `https://api.github.com/repos/AuroraWright/AuReiNand/tags?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
 
 const MAX_CHARS = 37;
 const PAYLOAD = 'arm9loaderhax.bin'
