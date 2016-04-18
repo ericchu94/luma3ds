@@ -24,8 +24,9 @@ const UPDATE_INTERVAL = process.env.UPDATE_INTERVAL || 10;
 
 const LATEST_HOST = 'http://astronautlevel2.github.io'
 const LATEST_PAGE = `${LATEST_HOST}/AuReiNand/`
-const RELEASE_PAGE = 'https://github.com/AuroraWright/AuReiNand/releases';
-const GITHUB_PAGE = 'https://github.com/AuroraWright/AuReiNand';
+const RELEASE_PAGE = 'https://api.github.com/repos/AuroraWright/AuReiNand/releases/latest';
+const COMMITS_PAGE = 'https://api.github.com/repos/AuroraWright/AuReiNand/commits';
+const TAGS_PAGE = 'https://api.github.com/repos/AuroraWright/AuReiNand/tags';
 
 const MAX_CHARS = 37;
 const PAYLOAD = 'arm9loaderhax.bin'
@@ -132,11 +133,18 @@ let last_latest_src = null;
 let last_release_src = null;
 
 function update() {
-  rp(GITHUB_PAGE).then(data => {
-    const $ = cheerio.load(data);
+  rp({
+    url: COMMITS_PAGE,
+    headers: {
+      'User-Agent': 'ericchu94/arn',
+      'Accept': 'application/vnd.github.v3+json',
+    },
+  }).then(data => {
+    const commits = JSON.parse(data);
+    const commit = commits[0].sha.substring(0, 7);
     return {
-      src: $('.commit-tease-sha').text().trim(),
-      commit: $('.commit-tease-sha').text().trim(),
+      src: commit,
+      commit: commit,
     };
   }).then(info => {
     if (last_latest_src == info.src)
@@ -175,14 +183,35 @@ function update() {
     }
   });
 
-  rp(RELEASE_PAGE).then(data => {
-    const $ = cheerio.load(data);
-    const src = $('.label-latest .release-title').text().trim();
-    const commit = $('.label-latest li').eq(1).text().trim();
-    return {
-      src: `${src} - ${commit}`,
-      commit: commit,
-    };
+  rp({
+    url: RELEASE_PAGE,
+    headers: {
+      'User-Agent': 'ericchu94/arn',
+      'Accept': 'application/vnd.github.v3+json',
+    },
+  }).then(data => {
+    const release = JSON.parse(data);
+    const tagName = release.tag_name;
+    const name = release.name;
+    return rp({
+      url: TAGS_PAGE,
+      headers: {
+        'User-Agent': 'ericchu94/arn',
+        'Accept': 'application/vnd.github.v3+json',
+      },
+    }).then(data => {
+      const tags = JSON.parse(data);
+      for (let tag of tags) {
+        if (tag.name == tagName) {
+          const commit = tag.commit.sha.substring(0, 7);
+          return {
+            src: `${name} - ${commit}`,
+            commit: commit,
+          }
+        }
+      }
+      throw new Error('Failed to get sha of release');
+    });
   }).then(info => {
     if (last_release_src == info.src)
       logger.info(`${RELEASE} is up to date`);
