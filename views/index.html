@@ -2,31 +2,85 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>AuReiNand A9LH Payload Generator</title>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   </head>
   <body>
-    <div id="content">
-      <h1>AuReiNand A9LH Payload Generator</h1>
-      <p>sdmc:/ <input id="path" maxlength="<%= maxLength %>" placeholder="<%= placeholder %>" type="text" /> <input type="button" value="Download" id="download" /><br />
-      <input type="radio" id="latest" value="latest" name="version" checked /> <label for="latest">Latest Commit (<%= latest %>)</label> <input type="radio" id="release" value="release" name="version" /> <label for="release">Latest Release (<%= release %>)</label></p>
-      <p>Download the latest AuReiNand with customized payload path!</p>
-      <p><strong>Examples:</strong></p>
-      <ul>
-        <li>arm9payload.bin</li>
-        <li>a9lh/AuReiNand.bin</li>
-        <li>arm9select/default.bin</li>
-      </ul>
-      <p><strong>Notes:</strong></p>
-      <ul>
-        <li>Do not put a leading slash</li>
-        <li>Use forward slashes</li>
-        <li>Path can be 37 characters max</li>
-      </ul>
-      <p>Check out #3dshacks on Rizon and <a href="https://www.reddit.com/r/3dshacks">/r/3dshacks</a> for more information.</p>
-      <p>Binary from <a href="http://astronautlevel2.github.io/AuReiNand/">http://astronautlevel2.github.io/AuReiNand/</a></p>
-      <p>Source code here: <a href="https://github.com/ericchu94/arn">GitHub</a></p>
-      <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
-      <script src="/assets/index.js"></script>
+    <div id="content" class="container-fluid">
+      <div class="row">
+        <div class="col-xs-12">
+          <h1>AuReiNand A9LH Payload Generator <small>by Eric Chu</small></h1>
+        </div>
       </div>
+      <div class="row">
+        <div class="col-xs-12 form-inline">
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label for="download" class="control-label">sdmc:/</label>
+                <input id="path" maxlength="<%= maxLength %>" placeholder="<%= placeholder %>" type="text" class="form-control" />
+              </div>
+              <input type="button" value="Download" id="download" class="btn btn-primary" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-xs-12">
+              <div class="form-group">
+                <label>
+                  <input type="radio" id="latest" value="latest" name="version" checked /> Latest Commit (<%= latest %>)
+                </label>
+                <label>
+                  <input type="radio" id="release" value="release" name="version" /> Latest Release (<%= release %>)
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <p>Download the latest AuReiNand with customized payload path!</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Examples</h2>
+          <ul>
+            <li>arm9payload.bin</li>
+            <li>a9lh/AuReiNand.bin</li>
+            <li>arm9select/default.bin</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Notes</h2>
+          <ul>
+            <li>Do not put a leading slash</li>
+            <li>Use forward slashes</li>
+            <li>Path can be 37 characters max</li>
+          </ul>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-12">
+          <h2>Resources</h2>
+          <ul>
+            <li>#3dshacks on Rizon</li>
+            <li><a href="https://www.reddit.com/r/3dshacks">/r/3dshacks</a></li>
+            <li><a href="http://github.com/AuroraWright/AuReiNand">AuReiNand</a></li>
+            <li><a href="http://astronautlevel2.github.io/AuReiNand/">Binaries</a></li>
+            <li><a href="https://github.com/ericchu94/arn">Source code</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-2.2.3.min.js"></script>
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="/assets/index.js"></script>
   </body>
 </html>
