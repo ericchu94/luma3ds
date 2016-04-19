@@ -9,33 +9,33 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
   </head>
   <body>
-    <div id="content" class="container-fluid">
+    <div id="content" class="container">
       <div class="row">
         <div class="col-xs-12">
           <h1>AuReiNand A9LH Payload Generator <small>by Eric Chu</small></h1>
         </div>
       </div>
       <div class="row">
-        <div class="col-xs-12 form-inline">
-          <div class="row">
+        <div class="col-xs-12 form-horizontal">
+          <div class="form-group">
             <div class="col-xs-12">
-              <div class="form-group">
-                <label for="download" class="control-label">sdmc:/</label>
+              <div class="input-group">
+                <span class="input-group-addon">sdmc:/</span>
                 <input id="path" maxlength="<%= maxLength %>" placeholder="<%= placeholder %>" type="text" class="form-control" />
+                <span class="input-group-btn">
+                  <input type="button" value="Download" id="download" class="btn btn-default" />
+                </span>
               </div>
-              <input type="button" value="Download" id="download" class="btn btn-primary" />
             </div>
           </div>
-          <div class="row">
+          <div class="form-group">
             <div class="col-xs-12">
-              <div class="form-group">
-                <label>
-                  <input type="radio" id="latest" value="latest" name="version" checked /> Latest Commit (<%= latest %>)
-                </label>
-                <label>
-                  <input type="radio" id="release" value="release" name="version" /> Latest Release (<%= release %>)
-                </label>
-              </div>
+              <label>
+                <input type="radio" id="latest" value="latest" name="version" checked /> Latest Commit (<%= latest %>)
+              </label>
+              <label>
+                <input type="radio" id="release" value="release" name="version" /> Latest Release (<%= release %>)
+              </label>
             </div>
           </div>
         </div>
