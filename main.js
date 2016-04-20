@@ -156,7 +156,6 @@ function update() {
     if (last_latest_src == info.src)
       logger.info(`${LATEST} is up to date`);
     else {
-      last_latest_src = info.src;
       return rp(LATEST_PAGE).then(data => {
         const $ = cheerio.load(data);
         return `${LATEST_HOST}${$('tr td a').filter((i, el) => {
@@ -182,6 +181,7 @@ function update() {
       }).then((folder) => {
         return fs.remove(folder);
       }).then(() => {
+        last_latest_src = info.src;
         logger.info(`Updated ${LATEST}`);
       }, err => {
         logger.warn(`Failed to update ${LATEST}: ${err}`);
@@ -222,7 +222,6 @@ function update() {
     if (last_release_src == info.src)
       logger.info(`${RELEASE} is up to date`);
     else {
-      last_release_src = info.src;
       return rp(LATEST_PAGE).then(data => {
         const $ = cheerio.load(data);
         return `${LATEST_HOST}${$('tr td a').filter((i, el) => {
@@ -248,6 +247,7 @@ function update() {
       }).then((folder) => {
         return fs.remove(folder);
       }).then(() => {
+        last_release_src = info.src;
         logger.info(`Updated ${RELEASE}`);
       }, err => {
         logger.warn(`Failed to update ${RELEASE}: ${err}`);
