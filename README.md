@@ -1,4 +1,4 @@
-# arn
+# luma3ds
 `npm install` and `npm start`
 
 ## Cross platform
