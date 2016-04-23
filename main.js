@@ -27,10 +27,10 @@ const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID || null;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || null;
 
 const LATEST_HOST = 'http://astronautlevel2.github.io'
-const LATEST_PAGE = `${LATEST_HOST}/AuReiNand/`
-const RELEASE_PAGE = `https://api.github.com/repos/AuroraWright/AuReiNand/releases/latest?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
-const COMMITS_PAGE = `https://api.github.com/repos/AuroraWright/AuReiNand/commits?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
-const TAGS_PAGE = `https://api.github.com/repos/AuroraWright/AuReiNand/tags?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
+const LATEST_PAGE = `${LATEST_HOST}/Luma3DS/`
+const RELEASE_PAGE = `https://api.github.com/repos/AuroraWright/Luma3DS/releases/latest?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
+const COMMITS_PAGE = `https://api.github.com/repos/AuroraWright/Luma3DS/commits?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
+const TAGS_PAGE = `https://api.github.com/repos/AuroraWright/Luma3DS/tags?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
 
 const MAX_CHARS = 37;
 const PAYLOAD = 'arm9loaderhax.bin'
@@ -49,7 +49,7 @@ const logger = new (winston.Logger) ({
       colorize: true,
     }),
     new (winston.transports.File) ({
-      filename: 'arn.log',
+      filename: 'luma3ds.log',
       timestamp: () => {
         return new Date();
       },
@@ -142,7 +142,7 @@ function update() {
   rp({
     url: COMMITS_PAGE,
     headers: {
-      'User-Agent': 'ericchu94/arn',
+      'User-Agent': 'ericchu94/luma3ds',
       'Accept': 'application/vnd.github.v3+json',
     },
   }).then(data => {
@@ -158,19 +158,28 @@ function update() {
     else {
       return rp(LATEST_PAGE).then(data => {
         const $ = cheerio.load(data);
-        return `${LATEST_HOST}${$('tr td a').filter((i, el) => {
+        const $build = $('tr td a').filter((i, el) => {
           return $(el).text().includes(info.commit);
-        }).attr('href')}`;
+        });
+
+        if ($build.length == 0)
+          throw new Error(`Build ${info.commit} not found`);
+
+        return `${LATEST_HOST}${$build.attr('href')}`;
       }).then(src => {
         return new Promise((resolve, reject) => {
           const dest = 'tmp_latest'
           const r = request(src);
           r.on('error', reject);
-          const writeStream = unzip.Extract({ path: dest });
-          writeStream.on('close', () => {
-            resolve(dest);
+          r.on('response', res => {
+            if (res.statusCode != 200)
+              return reject(new Error(res.statusMessage));
+            const writeStream = unzip.Extract({ path: dest });
+            writeStream.on('close', () => {
+              resolve(dest);
+            });
+            r.pipe(writeStream);
           });
-          r.pipe(writeStream);
         });
       }).then(output => {
         const folder = path.join(output, 'out');
@@ -183,16 +192,16 @@ function update() {
       }).then(() => {
         last_latest_src = info.src;
         logger.info(`Updated ${LATEST}`);
-      }, err => {
-        logger.warn(`Failed to update ${LATEST}: ${err}`);
       });
     }
+  }).catch(err => {
+    logger.warn(`Failed to update ${LATEST}: ${err}`);
   });
 
   rp({
     url: RELEASE_PAGE,
     headers: {
-      'User-Agent': 'ericchu94/arn',
+      'User-Agent': 'ericchu94/luma3ds',
       'Accept': 'application/vnd.github.v3+json',
     },
   }).then(data => {
@@ -202,7 +211,7 @@ function update() {
     return rp({
       url: TAGS_PAGE,
       headers: {
-        'User-Agent': 'ericchu94/arn',
+        'User-Agent': 'ericchu94/luma3ds',
         'Accept': 'application/vnd.github.v3+json',
       },
     }).then(data => {
@@ -224,19 +233,28 @@ function update() {
     else {
       return rp(LATEST_PAGE).then(data => {
         const $ = cheerio.load(data);
-        return `${LATEST_HOST}${$('tr td a').filter((i, el) => {
+        const $build = $('tr td a').filter((i, el) => {
           return $(el).text().includes(info.commit);
-        }).attr('href')}`;
+        });
+
+        if ($build.length == 0)
+          throw new Error(`Build ${info.commit} not found`);
+
+        return `${LATEST_HOST}${$build.attr('href')}`;
       }).then(src => {
         return new Promise((resolve, reject) => {
           const dest = 'tmp_release'
           const r = request(src);
           r.on('error', reject);
-          const writeStream = unzip.Extract({ path: dest });
-          writeStream.on('close', () => {
-            resolve(dest);
+          r.on('response', res => {
+            if (res.statusCode != 200)
+              return reject(new Error(res.statusMessage));
+            const writeStream = unzip.Extract({ path: dest });
+            writeStream.on('close', () => {
+              resolve(dest);
+            });
+            r.pipe(writeStream);
           });
-          r.pipe(writeStream);
         });
       }).then(output => {
         const folder = path.join(output, 'out');
@@ -249,10 +267,10 @@ function update() {
       }).then(() => {
         last_release_src = info.src;
         logger.info(`Updated ${RELEASE}`);
-      }, err => {
-        logger.warn(`Failed to update ${RELEASE}: ${err}`);
       });
     }
+  }).catch(err => {
+    logger.warn(`Failed to update ${RELEASE}: ${err}`);
   });
 }
 

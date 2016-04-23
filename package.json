@@ -1,7 +1,7 @@
 {
-  "name": "arn",
+  "name": "luma3ds",
   "version": "1.0.0",
-  "description": "AuReiNand A9LH Payload Generator",
+  "description": "Luma3DS A9LH Payload Generator",
   "main": "main.js",
   "scripts": {
     "start": "node main.js",
@@ -27,5 +27,5 @@
     "unzip2": "^0.2.5",
     "winston": "^2.2.0"
   },
-  "repository": "https://github.com/ericchu94/arn"
+  "repository": "https://github.com/ericchu94/luma3ds"
 }
