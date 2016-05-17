@@ -24,6 +24,10 @@
                 <input id="path" maxlength="<%= maxLength %>" placeholder="<%= placeholder %>" type="text" class="form-control" />
                 <span class="input-group-btn">
                   <input type="button" value="Download" id="download" class="btn btn-default" />
+                  <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="caret"></span><span class="sr-only">Toggle Dropdown</span></button>
+                  <ul class="dropdown-menu dropdown-menu-right">
+                    <li><a id="generate-link" href="#" data-toggle="modal" data-target="#link-modal">Generate Link</a></li>
+                  </ul>
                 </span>
               </div>
             </div>
@@ -82,5 +86,26 @@
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
     <script src="/assets/index.js"></script>
+    <div class="modal fade" id="link-modal" tabindex="-1" role="diaalog">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            <h4 class="modal-title">Generate Link</h4>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <a class="link" class="form-control">Download Link</a>
+            </div>
+            <div class="form-group">
+              <input type="text" class="form-control link" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

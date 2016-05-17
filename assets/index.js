@@ -12,4 +12,12 @@ $(function () {
 
     window.location.href = version + '/' + path;
   });
+
+  $('#generate-link').on('click', function (event) {
+    var version = $('input[name="version"]:checked').val();
+    var path = $('#path').val();
+    var url = window.location + version + '/' + path;
+    $('a.link').attr('href', url);
+    $('input.link').val(url);
+  });
 });
