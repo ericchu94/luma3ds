@@ -17,7 +17,7 @@ $(function () {
     var version = $('input[name="version"]:checked').val();
     var path = $('#path').val();
     var url = window.location + version + '/' + path;
-    $('a.link').attr('href', url);
-    $('input.link').val(url);
+    $('#link').attr('href', url);
+    $('#link').text(url);
   });
 });
