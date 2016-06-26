@@ -33,7 +33,8 @@ jspm_packages
 # Optional REPL history
 .node_repl_history
 
-# ARN
+# Luma3DS
 latest.bin
+latest_dev.bin
 release.bin
 pathchanger

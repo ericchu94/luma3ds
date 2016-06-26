@@ -28,14 +28,17 @@ const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET || null;
 
 const LATEST_HOST = 'http://astronautlevel2.github.io'
 const LATEST_PAGE = `${LATEST_HOST}/Luma3DS/`
+const LATEST_DEV_PAGE = `${LATEST_HOST}/Luma3DSDev/`
 const RELEASE_PAGE = `https://api.github.com/repos/AuroraWright/Luma3DS/releases/latest?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
 const COMMITS_PAGE = `https://api.github.com/repos/AuroraWright/Luma3DS/commits?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
+const DEV_COMMITS_PAGE = `https://api.github.com/repos/AuroraWright/Luma3DS/commits?sha=developer&client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
 const TAGS_PAGE = `https://api.github.com/repos/AuroraWright/Luma3DS/tags?client_id=${GITHUB_CLIENT_ID}&client_secret=${GITHUB_CLIENT_SECRET}`;
 
 const MAX_CHARS = 37;
 const PAYLOAD = 'arm9loaderhax.bin'
 const LATEST = 'latest.bin';
 const RELEASE = 'release.bin';
+const LATEST_DEV = 'latest_dev.bin';
 const PATH_CHANGER = './pathchanger';
 const PATTERN = 'sdmc:/'
 
@@ -80,15 +83,18 @@ router.get('/', (ctx, next) => {
     maxLength: MAX_CHARS,
     url: `http://${ctx.host}/`,
     latest: path.basename(last_latest_src),
+    latest_dev: path.basename(last_latest_dev_src),
     release: path.basename(last_release_src),
   });
 });
 
 router.get('/assets/*', serve('.'));
 
-router.get(['/latest/*', '/release/*'], (ctx, next) => {
+router.get(['/latest/*', '/release/*', '/latest_dev/*'], (ctx, next) => {
   if (ctx.req.url.startsWith('/latest/'))
     ctx.version = LATEST;
+  else if (ctx.req.url.startsWith('/latest_dev/'))
+    ctx.version = LATEST_DEV;
   else
     ctx.version = RELEASE;
   ctx.payload = ctx.params[0];
@@ -136,9 +142,69 @@ app.use(router.routes());
 app.use(router.allowedMethods());
 
 let last_latest_src = null;
+let last_latest_dev_src = null;
 let last_release_src = null;
 
 function update() {
+  rp({
+    url: DEV_COMMITS_PAGE,
+    headers: {
+      'User-Agent': 'ericchu94/luma3ds',
+      'Accept': 'application/vnd.github.v3+json',
+    },
+  }).then(data => {
+    const commits = JSON.parse(data);
+    const commit = commits[0].sha.substring(0, 7);
+    return {
+      src: commit,
+      commit: commit,
+    };
+  }).then(info => {
+    if (last_latest_src == info.src)
+      logger.info(`${LATEST_DEV} is up to date`);
+    else {
+      return rp(LATEST_DEV_PAGE).then(data => {
+        const $ = cheerio.load(data);
+        const $build = $('tr td a').filter((i, el) => {
+          return $(el).text().includes(info.commit);
+        });
+
+        if ($build.length == 0)
+          throw new Error(`Build ${info.commit} not found`);
+
+        return `${LATEST_HOST}${$build.attr('href')}`;
+      }).then(src => {
+        return new Promise((resolve, reject) => {
+          const dest = 'tmp_latest_dev'
+          const r = request(src);
+          r.on('error', reject);
+          r.on('response', res => {
+            if (res.statusCode != 200)
+              return reject(new Error(res.statusMessage));
+            const writeStream = unzip.Extract({ path: dest });
+            writeStream.on('close', () => {
+              resolve(dest);
+            });
+            r.pipe(writeStream);
+          });
+        });
+      }).then(output => {
+        const folder = path.join(output, 'out');
+        const file = path.join(folder, 'arm9loaderhax.bin');
+        return fs.rename(file, LATEST_DEV).then(() => {
+          return output;
+        });
+      }).then((folder) => {
+        return fs.remove(folder);
+      }).then(() => {
+        last_latest_dev_src = info.src;
+        logger.info(`Updated ${LATEST_DEV}`);
+      });
+    }
+  }).catch(err => {
+    logger.warn(`Failed to update ${LATEST}: ${err}`);
+  });
+
   rp({
     url: COMMITS_PAGE,
     headers: {
